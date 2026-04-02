@@ -1,8 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fdf9f6;
+  --foreground: #2c2420;
+  --blush: #e8c4c4;
+  --blush-dark: #d4a3a3;
+  --sage: #8fae8b;
+  --sage-dark: #6d8e69;
+  --sage-light: #f2f7f1;
+  --ivory: #f5f0e8;
+  --gold: #c5a55a;
+  --gold-dark: #a08940;
+  --gold-light: #faf6eb;
+  --border: #e6ddd4;
+  --border-dark: #d4c8bc;
+  --muted: #7a6e64;
+  --muted-light: #a09488;
+  --surface: #f8f3ee;
 }
 
 @theme inline {
@@ -12,15 +26,131 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, "Georgia", serif);
+  line-height: 1.7;
+}
+
+/* ===== OVERRIDE GENERIC ZINC PALETTE ===== */
+.bg-white { background-color: #fefcf9 !important; }
+.bg-zinc-50 { background-color: var(--surface) !important; }
+.bg-zinc-100 { background-color: var(--ivory) !important; }
+.bg-zinc-900 {
+  background: linear-gradient(135deg, var(--sage-dark) 0%, var(--sage) 100%) !important;
+  color: white !important;
+}
+.bg-zinc-900:hover, .hover\:bg-zinc-800:hover {
+  background: linear-gradient(135deg, #5c7a58 0%, var(--sage-dark) 100%) !important;
+}
+
+.text-zinc-900 { color: var(--foreground) !important; }
+.text-zinc-800 { color: var(--foreground) !important; }
+.text-zinc-700 { color: #3d3530 !important; }
+.text-zinc-600 { color: var(--muted) !important; }
+.text-zinc-500 { color: var(--muted-light) !important; }
+
+.border-zinc-200 { border-color: var(--border) !important; }
+.border-zinc-300 { border-color: var(--border-dark) !important; }
+
+/* Gold accents */
+.text-blue-600, .text-indigo-600 { color: var(--gold-dark) !important; }
+.ring-2 { --tw-ring-color: var(--gold) !important; }
+
+/* ===== HERO / HEADING ENHANCEMENTS ===== */
+main > h1:first-of-type, h1.text-3xl, h1.text-4xl {
+  font-family: "Georgia", "Times New Roman", serif !important;
+  letter-spacing: -0.3px;
+}
+
+/* Decorative gold divider after hero heading */
+main > :first-child::before {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin-bottom: 24px;
+}
+
+/* Section heading gold underline */
+.text-2xl.font-semibold, h2.text-2xl, h2.text-xl {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+.text-2xl.font-semibold::after, h2.text-2xl::after, h2.text-xl::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 1px;
+}
+
+/* ===== CARD ENHANCEMENTS ===== */
+.rounded-lg.border, .rounded-xl.border {
+  border-color: var(--border) !important;
+  box-shadow: 0 2px 10px rgba(44, 36, 32, 0.05);
+  transition: all 0.25s ease;
+}
+.rounded-lg.border:hover, .rounded-xl.border:hover {
+  box-shadow: 0 6px 24px rgba(44, 36, 32, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ===== EDITOR CANVAS ===== */
+canvas, .relative.border {
+  border-color: var(--border) !important;
+  border-radius: 12px !important;
+}
+
+/* ===== TABLE STYLING ===== */
+/* Round tables get a blush tint, banquet tables get sage */
+svg circle { opacity: 0.9; }
+
+/* ===== PRICING ===== */
+.ring-2.ring-offset-2 {
+  box-shadow: 0 8px 32px rgba(197, 165, 90, 0.15) !important;
+}
+
+/* ===== FOOTER ===== */
+footer, .border-t {
+  border-color: var(--border) !important;
+  background: var(--surface);
+}
+
+/* ===== FAQ ===== */
+details { border-color: var(--border) !important; }
+details summary { font-family: "Georgia", serif; }
+
+/* ===== SUBTLE PATTERN BACKGROUND ===== */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image:
+    radial-gradient(circle at 20% 30%, var(--blush) 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, var(--sage) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: -1;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  body { background: white !important; }
+  body::before { display: none; }
+  .rounded-lg.border { box-shadow: none !important; }
+}
+
+@media (max-width: 640px) {
+  main > h1:first-of-type { font-size: 28px !important; }
 }

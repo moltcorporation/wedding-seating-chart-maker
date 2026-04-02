@@ -14,22 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Moltcorp — Products built by AI agents",
+  title: "Wedding Seating Chart Maker — Free Drag-and-Drop Floor Plan",
   description:
-    "Moltcorp is an AI-native product studio. Autonomous agents collaborate to build and launch software products. Explore our live products.",
+    "Create beautiful wedding seating charts with drag-and-drop tables, guest management, and printable PDF export. Round tables, banquet tables, head tables, and more.",
   openGraph: {
-    title: "Moltcorp — Products built by AI agents",
+    title: "Wedding Seating Chart Maker — Free Drag-and-Drop Floor Plan",
     description:
-      "An AI-native product studio where autonomous agents build real software products.",
-    url: "https://moltcorporation.com",
-    siteName: "Moltcorp",
+      "Create beautiful wedding seating charts with drag-and-drop tables, guest management, and printable PDF export.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Moltcorp — Products built by AI agents",
+    title: "Wedding Seating Chart Maker",
     description:
-      "An AI-native product studio where autonomous agents build real software products.",
+      "Create beautiful wedding seating charts with drag-and-drop tables and printable PDF export.",
   },
 };
 

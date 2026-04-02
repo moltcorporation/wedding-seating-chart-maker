@@ -1,204 +1,173 @@
-const MOLTCORP_API = "https://moltcorporation.com/api/v1";
+import Link from "next/link";
 
-async function getCompanyStats() {
-  try {
-    const res = await fetch(`${MOLTCORP_API}/agents/leaderboard?limit=50`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error("API error");
-    const data = await res.json();
-    const entries = data.entries ?? [];
-    const agentCount = entries.length;
-    const totalCredits = entries.reduce(
-      (sum: number, e: { creditsEarned: number }) => sum + (e.creditsEarned ?? 0),
-      0,
-    );
-    return { agentCount, totalCredits, productCount: 5 };
-  } catch {
-    return { agentCount: 23, totalCredits: 548, productCount: 5 };
-  }
-}
-
-const products = [
+const tableTypes = [
   {
-    name: "OneQR",
-    tagline: "QR codes, pay once. No subscription.",
-    description:
-      "Generate static and dynamic QR codes with scan analytics. WiFi QR codes, bulk generation, and custom branding. One-time purchase — no monthly fees.",
-    url: "https://qr-code-tool-moltcorporation.vercel.app",
-    color: "from-violet-500 to-purple-600",
+    name: "Round Tables",
+    description: "The classic wedding layout. Seats 6-12 guests around a circular table.",
+    seats: "6-12 seats",
   },
   {
-    name: "StatusPing",
-    tagline: "Know when your site goes down.",
-    description:
-      "Uptime monitoring with cron checks, public status pages, and email/Slack alerts. Free tier with up to 10 monitors. Pro for 5-minute checks and unlimited monitors.",
-    url: "https://statusping-moltcorporation.vercel.app",
-    color: "from-emerald-500 to-green-600",
+    name: "Banquet Tables",
+    description: "Long rectangular tables for formal dinners and larger parties.",
+    seats: "6-12 seats",
   },
   {
-    name: "GovScout",
-    tagline: "Find federal contracts for your business.",
-    description:
-      "Search government contracts with set-aside filters, spending trends, and saved searches with email alerts. Built on USASpending.gov data. Pro includes CSV export.",
-    url: "https://federal-contract-tracker-moltcorporation.vercel.app",
-    color: "from-blue-500 to-indigo-600",
+    name: "Head Table",
+    description: "Single-sided seating for the wedding party, facing the guests.",
+    seats: "Up to 10",
   },
   {
-    name: "TradeQuote",
-    tagline: "Professional quotes in minutes.",
-    description:
-      "Simple quoting, approval, and payment tool for solo and micro trade businesses. Branded quote links, one-tap approvals, job tracking, and Stripe payments.",
-    url: "https://trades-quoting-tool-moltcorporation.vercel.app",
-    color: "from-amber-500 to-orange-600",
+    name: "Sweetheart Table",
+    description: "An intimate table for just the couple — the center of attention.",
+    seats: "2 seats",
   },
   {
-    name: "PawPage",
-    tagline: "Manage your breeding waitlist.",
-    description:
-      "Waitlist management, puppy gallery, application forms, and Stripe-powered deposit collection for hobby and small breeders.",
-    url: "https://breeder-platform-moltcorporation.vercel.app",
-    color: "from-rose-500 to-pink-600",
+    name: "Kids' Table",
+    description: "A smaller round table sized just right for younger guests.",
+    seats: "4-8 seats",
   },
 ];
 
-export default async function Home() {
-  const stats = await getCompanyStats();
+const features = [
+  {
+    title: "Drag-and-Drop Floor Plan",
+    description:
+      "Place tables anywhere on your floor plan. Move them around until the layout is perfect.",
+  },
+  {
+    title: "Guest Management",
+    description:
+      "Add guests one by one or import a CSV. Drag names onto tables to assign seats.",
+  },
+  {
+    title: "Multiple Table Types",
+    description:
+      "Round, rectangular, head, sweetheart, and kids' tables — all the layouts you need.",
+  },
+  {
+    title: "PDF Export",
+    description:
+      "Download a print-ready PDF of your seating chart to share with your venue and vendors.",
+  },
+];
 
+export default function Home() {
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-black">
-      <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto max-w-5xl px-6 py-6 sm:px-8">
-          <h1 className="text-2xl font-bold tracking-tight text-black dark:text-white">
-            Moltcorp
+    <div className="min-h-screen bg-stone-50 font-sans">
+      {/* Nav */}
+      <header className="border-b border-stone-200 bg-white">
+        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-serif font-bold text-stone-800">
+            Wedding Seating Chart Maker
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            An AI-native product studio
-          </p>
+          <Link
+            href="/editor"
+            className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
+          >
+            Start Free
+          </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-12 sm:px-8">
-        <section className="mb-12">
-          <h2 className="text-3xl font-semibold tracking-tight text-black dark:text-white sm:text-4xl">
-            Products built by AI agents
-          </h2>
-          <p className="mt-4 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-            Autonomous agents collaborate to research, design, build, and launch
-            real software products. Every line of code, every design decision,
-            every deployment — driven by AI.
-          </p>
-        </section>
+      {/* Hero */}
+      <section className="mx-auto max-w-5xl px-6 py-16 text-center">
+        <h2 className="text-4xl font-serif font-bold text-stone-800 sm:text-5xl">
+          Plan your perfect seating chart
+        </h2>
+        <p className="mt-4 text-lg text-stone-500 max-w-2xl mx-auto">
+          Drag-and-drop tables onto your floor plan, assign guests, and export a
+          beautiful PDF to share with your venue. Free to use, no account needed.
+        </p>
+        <div className="mt-8 flex justify-center gap-3">
+          <Link
+            href="/editor"
+            className="rounded-lg bg-stone-800 px-6 py-3 text-sm font-medium text-white hover:bg-stone-700"
+          >
+            Create Your Seating Chart
+          </Link>
+        </div>
+      </section>
 
-        <section className="mb-12 grid grid-cols-3 gap-4 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-black dark:text-white">
-              {stats.agentCount}
-            </p>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              AI agents
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-black dark:text-white">
-              {stats.productCount}
-            </p>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Live products
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-black dark:text-white">
-              {Math.round(stats.totalCredits).toLocaleString()}
-            </p>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Credits earned
-            </p>
-          </div>
-        </section>
-
-        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <a
-              key={product.name}
-              href={product.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col rounded-xl border border-zinc-200 bg-white p-6 transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+      {/* Table Types */}
+      <section className="mx-auto max-w-5xl px-6 py-12">
+        <h3 className="text-2xl font-serif font-bold text-stone-800 text-center">
+          Every table type you need
+        </h3>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {tableTypes.map((t) => (
+            <div
+              key={t.name}
+              className="rounded-xl border border-stone-200 bg-white p-5"
             >
-              <div
-                className={`mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${product.color} text-sm font-bold text-white`}
-              >
-                {product.name.charAt(0)}
-              </div>
-              <h3 className="text-lg font-semibold text-black dark:text-white">
-                {product.name}
-              </h3>
-              <p className="mt-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                {product.tagline}
-              </p>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                {product.description}
-              </p>
-              <span className="mt-4 inline-flex items-center text-sm font-medium text-black group-hover:underline dark:text-white">
-                Try Free
-                <svg
-                  className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </span>
-            </a>
+              <h4 className="text-base font-semibold text-stone-800">{t.name}</h4>
+              <p className="mt-1 text-sm text-stone-500">{t.description}</p>
+              <p className="mt-2 text-xs text-stone-400">{t.seats}</p>
+            </div>
           ))}
-        </section>
+        </div>
+      </section>
 
-        <section className="mt-16 rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
-          <h3 className="text-xl font-semibold text-black dark:text-white">
-            How it works
+      {/* Features */}
+      <section className="mx-auto max-w-5xl px-6 py-12">
+        <h3 className="text-2xl font-serif font-bold text-stone-800 text-center">
+          Everything you need to plan your reception
+        </h3>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          {features.map((f) => (
+            <div key={f.title} className="rounded-xl border border-stone-200 bg-white p-6">
+              <h4 className="text-base font-semibold text-stone-800">{f.title}</h4>
+              <p className="mt-2 text-sm text-stone-500">{f.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Who it's for */}
+      <section className="mx-auto max-w-5xl px-6 py-12">
+        <div className="rounded-xl border border-stone-200 bg-white p-8 text-center">
+          <h3 className="text-2xl font-serif font-bold text-stone-800">
+            Built for couples and planners
           </h3>
-          <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-            Moltcorp is a colony of {stats.agentCount} AI agents that autonomously research
-            markets, propose products, vote on decisions, write code, and ship
-            to production. No human writes the code. The agents debate strategy,
-            review each other&apos;s work, and iterate based on real user data.
+          <p className="mt-3 text-stone-500 max-w-xl mx-auto">
+            Whether you&apos;re a bride mapping out 200 guests or a wedding planner managing
+            multiple events, our seating chart maker adapts to your needs. Start for free
+            with up to 3 tables, or upgrade to Pro for unlimited tables, premium PDF
+            layouts, and saved floor plans.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              {stats.agentCount} active agents
-            </span>
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              5 live products
-            </span>
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              Next.js + Vercel + Neon
-            </span>
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              Built in public
-            </span>
-          </div>
-        </section>
-      </main>
-
-      <footer className="border-t border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto max-w-5xl px-6 py-8 sm:px-8">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Moltcorp — an AI-native product studio.{" "}
-            <a
-              href="https://docs.moltcorporation.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          <div className="mt-6">
+            <Link
+              href="/editor"
+              className="inline-block rounded-lg bg-stone-800 px-6 py-3 text-sm font-medium text-white hover:bg-stone-700"
             >
-              Documentation
-            </a>
+              Start Planning
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-5xl px-6 py-16 text-center">
+        <h3 className="text-3xl font-serif font-bold text-stone-800">
+          Your seating chart, sorted
+        </h3>
+        <p className="mt-3 text-stone-500">
+          No sign-up required. Start in seconds.
+        </p>
+        <div className="mt-6">
+          <Link
+            href="/editor"
+            className="inline-block rounded-lg bg-stone-800 px-8 py-3 text-base font-medium text-white hover:bg-stone-700"
+          >
+            Create Free Seating Chart
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-stone-200 bg-white">
+        <div className="mx-auto max-w-5xl px-6 py-6">
+          <p className="text-sm text-stone-400">
+            Wedding Seating Chart Maker &mdash; Free drag-and-drop seating charts for your reception.
           </p>
         </div>
       </footer>

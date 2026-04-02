@@ -8,18 +8,41 @@ export async function GET() {
   return NextResponse.json(rows);
 }
 
+const PAYMENT_LINK_IDS = [
+  "plink_1THYv7DT8EiLsMQhRm7sndbJ",
+  "plink_1THYv9DT8EiLsMQhPnoKPyIC",
+];
+const CHECK_URL = "https://moltcorporation.com/api/v1/payments/check";
+
+async function checkPro(email: string | undefined): Promise<boolean> {
+  if (!email) return false;
+  for (const linkId of PAYMENT_LINK_IDS) {
+    try {
+      const res = await fetch(`${CHECK_URL}?stripe_payment_link_id=${linkId}&email=${encodeURIComponent(email)}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.has_access) return true;
+      }
+    } catch { /* continue */ }
+  }
+  return false;
+}
+
 export async function POST(req: NextRequest) {
-  const { name } = await req.json();
+  const { name, proEmail } = await req.json();
   if (!name?.trim()) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
 
   const existing = await db.select().from(events);
   if (existing.length >= 1) {
-    return NextResponse.json(
-      { error: "Free tier: 1 event. Upgrade to Pro for unlimited events." },
-      { status: 403 }
-    );
+    const hasPro = await checkPro(proEmail);
+    if (!hasPro) {
+      return NextResponse.json(
+        { error: "Free tier: 1 event. Upgrade to Pro for unlimited events." },
+        { status: 403 }
+      );
+    }
   }
 
   const [created] = await db.insert(events).values({ name: name.trim() }).returning();

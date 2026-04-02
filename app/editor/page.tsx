@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { jsPDF } from "jspdf";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -83,6 +84,10 @@ export default function EditorPage() {
   const [dragTableId, setDragTableId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [isPro, setIsPro] = useState(false);
+  const [proEmail, setProEmail] = useState("");
+  const [showProModal, setShowProModal] = useState(false);
+  const [proCheckStatus, setProCheckStatus] = useState<"idle" | "checking" | "error">("idle");
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // ─── Load event on mount ──────────────────────────────────────────────────
@@ -115,14 +120,51 @@ export default function EditorPage() {
     load();
   }, []);
 
+  // ─── Check Pro status on mount ─────────────────────────────────────────────
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("pro_email");
+    if (savedEmail) {
+      fetch(`/api/pro/check?email=${encodeURIComponent(savedEmail)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.pro) setIsPro(true);
+          else localStorage.removeItem("pro_email");
+        })
+        .catch(() => {});
+    }
+  }, []);
+
+  async function activatePro() {
+    const trimmed = proEmail.trim().toLowerCase();
+    if (!trimmed) return;
+    setProCheckStatus("checking");
+    try {
+      const res = await fetch(`/api/pro/check?email=${encodeURIComponent(trimmed)}`);
+      const data = await res.json();
+      if (data.pro) {
+        localStorage.setItem("pro_email", trimmed);
+        localStorage.setItem("pro_plan", data.plan);
+        setIsPro(true);
+        setShowProModal(false);
+        setProCheckStatus("idle");
+      } else {
+        setProCheckStatus("error");
+      }
+    } catch {
+      setProCheckStatus("error");
+    }
+  }
+
   // ─── Event CRUD ───────────────────────────────────────────────────────────
 
   async function createEvent() {
     if (!eventName.trim()) return;
+    const savedEmail = localStorage.getItem("pro_email");
     const res = await fetch("/api/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: eventName.trim() }),
+      body: JSON.stringify({ name: eventName.trim(), proEmail: savedEmail || undefined }),
     });
     if (!res.ok) {
       const data = await res.json();
@@ -215,7 +257,7 @@ export default function EditorPage() {
   // ─── Table Management ─────────────────────────────────────────────────────
 
   function addTable(type: TableType) {
-    if (tables.length >= FREE_TABLE_LIMIT) {
+    if (!isPro && tables.length >= FREE_TABLE_LIMIT) {
       setError("Free tier: max 3 tables. Upgrade to Pro for unlimited.");
       return;
     }
@@ -402,12 +444,14 @@ export default function EditorPage() {
       });
     });
 
-    // Watermark for free tier
-    doc.setFontSize(8);
-    doc.setTextColor(200, 200, 200);
-    doc.text("Made with Wedding Seating Chart Maker (Free)", pw / 2, ph - 15, {
-      align: "center",
-    });
+    // Watermark for free tier only
+    if (!isPro) {
+      doc.setFontSize(8);
+      doc.setTextColor(200, 200, 200);
+      doc.text("Made with Wedding Seating Chart Maker (Free)", pw / 2, ph - 15, {
+        align: "center",
+      });
+    }
 
     doc.save(`${event?.name || "seating-chart"}.pdf`);
   }
@@ -466,12 +510,35 @@ export default function EditorPage() {
       {/* Header */}
       <header className="flex items-center justify-between border-b border-stone-200 bg-white px-4 py-3">
         <div>
-          <h1 className="text-lg font-serif font-bold text-stone-800">{event.name}</h1>
+          <h1 className="text-lg font-serif font-bold text-stone-800">
+            {event.name}
+            {isPro && (
+              <span className="ml-2 inline-block rounded-full bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-white align-middle">
+                PRO
+              </span>
+            )}
+          </h1>
           <p className="text-xs text-stone-500">
             {guests.length} guests &middot; {totalSeated} seated &middot; {tables.length} table{tables.length !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {!isPro && (
+            <>
+              <button
+                onClick={() => setShowProModal(true)}
+                className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50"
+              >
+                Activate Pro
+              </button>
+              <Link
+                href="/pricing"
+                className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50"
+              >
+                Upgrade
+              </Link>
+            </>
+          )}
           <button
             onClick={saveFloorPlan}
             disabled={saving}
@@ -487,6 +554,51 @@ export default function EditorPage() {
           </button>
         </div>
       </header>
+
+      {/* Pro Activation Modal */}
+      {showProModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-serif font-bold text-stone-800">Activate Pro</h2>
+            <p className="mt-2 text-sm text-stone-500">
+              Enter the email you used at checkout.
+            </p>
+            {proCheckStatus === "error" && (
+              <p className="mt-2 text-sm text-red-500">
+                No Pro purchase found. It may take a few minutes to process.
+              </p>
+            )}
+            <div className="mt-4 flex gap-2">
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={proEmail}
+                onChange={(e) => setProEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && activatePro()}
+                className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              />
+              <button
+                onClick={activatePro}
+                disabled={proCheckStatus === "checking"}
+                className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700 disabled:opacity-50"
+              >
+                {proCheckStatus === "checking" ? "..." : "Activate"}
+              </button>
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <Link href="/pricing" className="text-xs text-stone-500 underline hover:text-stone-700">
+                View pricing
+              </Link>
+              <button
+                onClick={() => { setShowProModal(false); setProCheckStatus("idle"); }}
+                className="text-xs text-stone-400 hover:text-stone-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="border-b border-red-200 bg-red-50 px-4 py-2">

@@ -60,12 +60,20 @@ export default function Home() {
           <h1 className="text-xl font-serif font-bold text-stone-800">
             Wedding Seating Chart Maker
           </h1>
-          <Link
-            href="/editor"
-            className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
-          >
-            Start Free
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-stone-600 hover:text-stone-800"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/editor"
+              className="rounded-lg bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
+            >
+              Start Free
+            </Link>
+          </div>
         </div>
       </header>
 
